@@ -41,7 +41,7 @@ lint:
 	@make isort
 	@make flake8
 
-# djangoのコンテナのターミナルに入るコマンド
+# django縺ｮ繧ｳ繝ｳ繝�繝翫�ｮ繧ｿ繝ｼ繝溘リ繝ｫ縺ｫ蜈･繧九さ繝槭Φ繝�
 .PHONY: exec
 exec:
 	docker compose -f docker-compose-dev.yml exec django bash

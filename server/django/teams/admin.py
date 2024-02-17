@@ -4,7 +4,10 @@ from teams.models import Task, Team
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "id",
+        "name",
+    )
 
 
 @admin.register(Task)

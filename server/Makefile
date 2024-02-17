@@ -44,3 +44,7 @@ lint:
 .PHONY: exec
 exec:
 	docker compose -f docker-compose-dev.yml exec django bash
+
+.PHONY: delete
+delete:
+	rm -rf db/

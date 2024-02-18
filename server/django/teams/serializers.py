@@ -5,6 +5,4 @@ from teams.models import Team
 class TeamSerializer(ModelSerializer):
     class Meta:
         model = Team
-        fields = "__all__"
-
-    # JSONにするフィールドを指定
+        fields = ["id", "name", "description"]  # JSONにするフィールドを指定

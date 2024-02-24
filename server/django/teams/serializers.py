@@ -7,3 +7,9 @@ class TeamSerializer(ModelSerializer):
     class Meta:
         model = Team
         fields = ["id", "name", "description"]  # JSONにするフィールドを指定
+
+
+class TeamCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["name", "description"]

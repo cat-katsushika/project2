@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -142,6 +143,8 @@ SIMPLE_JWT = {
     # トークンの時間を5分に設定
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": False,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     # 暗号のアルゴリズム設定
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,

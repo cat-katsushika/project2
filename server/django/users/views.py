@@ -3,7 +3,7 @@
 # Create your views here.
 from rest_framework import generics
 from rest_framework.decorators import authentication_classes, permission_classes
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from users.serializers import MyTokenObtainPairSerializer, UserSerializer
 
@@ -20,3 +20,7 @@ class SignUpAPIView(generics.CreateAPIView):
 
 class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class RefreshTokenView(TokenRefreshView):
+    pass

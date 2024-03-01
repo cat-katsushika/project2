@@ -1,3 +1,21 @@
-# from django.test import TestCase
+from django.test import TestCase
+from rest_framework.test import APIClient
+from rest_framework import status
+from .models import User
 
-# Create your tests here.
+class SignUpAPItest(TestCase):
+    def setUp(self):
+        self.signup_url = "http://localhost:8000/v1/users/create/"
+        self.client = APIClient()
+
+    def test_signup_success(self):
+        data = {"username": "testuser", "password": "testpassword"}
+        response = self.client.post(self.signup_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_signup_with_existing_username(self):
+        User.objects.create_user(username="existinguser", password="existingpassword")
+        data = {"username": "existinguser", "password": "newpassword"}
+        response = self.client.post(self.signup_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("A user with that username already exists.", response.data["username"])

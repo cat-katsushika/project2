@@ -1,11 +1,15 @@
-from django.test import TestCase
-from rest_framework.test import APIClient
 from rest_framework import status
+from rest_framework.test import APIClient
+
+from django.test import TestCase
+from django.urls import reverse
+
 from .models import User
+
 
 class SignUpAPItest(TestCase):
     def setUp(self):
-        self.signup_url = "http://localhost:8000/v1/users/create/"
+        self.signup_url = reverse("users:signup")
         self.client = APIClient()
 
     def test_signup_success(self):

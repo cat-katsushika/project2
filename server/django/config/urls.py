@@ -22,5 +22,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("teams.urls")),
     path("", include("users.urls")),
-    path("", include("djoser.urls.jwt")),
 ]

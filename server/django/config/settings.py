@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     "teams",
     # simpleJWT
     "rest_framework.authtoken",
-    "djoser",
 ]
 
 MIDDLEWARE = [

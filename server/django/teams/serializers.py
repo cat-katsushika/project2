@@ -13,3 +13,9 @@ class TeamCreateSerializer(ModelSerializer):
     class Meta:
         model = Team
         fields = ["name", "description"]
+
+
+class JoinedTeamSerializer(ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["id", "name", "description"]  # JSONにするフィールドを指定

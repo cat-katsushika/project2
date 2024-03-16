@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-# from rest_framework_simplejwt.serializers import TokenObtainSerializer
-
 from django.urls import reverse
 from teams.models import Team
+
+# from rest_framework_simplejwt.serializers import TokenObtainSerializer
+
 
 
 class TeamCreateAPITest(APITestCase):

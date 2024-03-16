@@ -1,11 +1,15 @@
 # from django.shortcuts import render
 
 # Create your views here.
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from users.serializers import MyTokenObtainPairSerializer, UserSerializer
+from users.serializers import ChangeUsernameSerializer, MyTokenObtainPairSerializer, UserSerializer
 
 from .models import User
 
@@ -20,3 +24,25 @@ class SignUpAPIView(generics.CreateAPIView):
 
 class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+@authentication_classes([])
+@permission_classes([])
+class ChangeUsernameAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+    serializer_class = ChangeUsernameSerializer
+
+    def put(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            user = request.user
+            new_username = request.data.get("username")
+
+            if User.objects.filter(username=new_username).exists():
+                return Response({"error": "同じユーザネームが既に存在します"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.username = new_username
+            user.save()
+
+            serializer = self.serializer_class(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-
+from rest_framework.decorators import authentication_classes, permission_classes
 from django.test import TestCase
 from django.urls import reverse
 
@@ -71,3 +71,21 @@ class RefreshTokenAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("Token is invalid or expired", response.data["detail"])
         self.assertIn("token_not_valid", response.data["code"])
+
+
+class ChangeUsernameAPITest(APITestCase):
+    def setUp(self):
+        self.login_url = reverse("users:change_username")
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.client.login(username="testuser", password="testpassword")
+        
+    def test_changeusername_success(self):
+        data = {"username": "newtestuser"}
+        response = self.client.put(self.login_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_changeusername_failure(self):
+        data = {"username": "testuser"}
+        response = self.client.put(self.login_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

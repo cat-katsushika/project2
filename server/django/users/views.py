@@ -26,7 +26,6 @@ class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-
 class ChangeUsernameAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication]

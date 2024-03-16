@@ -1,6 +1,7 @@
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
 from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.test import APIClient, APITestCase
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -79,12 +80,12 @@ class ChangeUsernameAPITest(APITestCase):
         self.client = APIClient()
         self.user = User.objects.create_user(username="testuser", password="testpassword")
         self.client.login(username="testuser", password="testpassword")
-        
+
     def test_changeusername_success(self):
         data = {"username": "newtestuser"}
         response = self.client.put(self.login_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
     def test_changeusername_failure(self):
         data = {"username": "testuser"}
         response = self.client.put(self.login_url, data, format="json")

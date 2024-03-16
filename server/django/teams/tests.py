@@ -7,7 +7,6 @@ from teams.models import Team
 # from rest_framework_simplejwt.serializers import TokenObtainSerializer
 
 
-
 class TeamCreateAPITest(APITestCase):
     def setUp(self):
         self.teamcreate_url = reverse("teams:team-create")

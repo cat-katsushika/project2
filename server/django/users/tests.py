@@ -1,7 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.test import APIClient, APITestCase
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.test import TestCase
 from django.urls import reverse
 
@@ -76,17 +75,31 @@ class RefreshTokenAPITest(APITestCase):
 
 class ChangeUsernameAPITest(APITestCase):
     def setUp(self):
-        self.login_url = reverse("users:change_username")
-        self.client = APIClient()
         self.user = User.objects.create_user(username="testuser", password="testpassword")
-        self.client.login(username="testuser", password="testpassword")
-
+        another_user = User.objects.create_user(username="anotheruser", password="anotherpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.url = reverse("users:change_username")
+        
     def test_changeusername_success(self):
         data = {"username": "newtestuser"}
-        response = self.client.put(self.login_url, data, format="json")
+        response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_changeusername_failure(self):
+    def test_changeusername_sameusername(self):
         data = {"username": "testuser"}
-        response = self.client.put(self.login_url, data, format="json")
+        response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+    def test_changeusername_emptyfield(self):
+        data = {"username": ""}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+    def test_changeusername_existinguser(self):
+        data = {"username": "anotheruser"}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        

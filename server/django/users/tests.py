@@ -95,13 +95,13 @@ class ChangeUsernameAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("新しいユーザネームを登録してください", response.data["error"])
 
-    def test_changeusername_nothing(self):
+    def test_changeusername_emptyfield(self):
         data = {"username": ""}
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("ユーザネームを入力してください", response.data["error"])
 
-    def test_changeusername_nothing(self):
+    def test_changeusername_blankfield(self):
         data = {"username": "  "}
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -82,7 +83,7 @@ class ChangeUsernameAPITest(APITestCase):
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
         self.url = reverse("users:change_username")
-        
+
     def test_changeusername_success(self):
         data = {"username": "newtestuser"}
         response = self.client.put(self.url, data, format="json")
@@ -92,14 +93,22 @@ class ChangeUsernameAPITest(APITestCase):
         data = {"username": "testuser"}
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
-    def test_changeusername_emptyfield(self):
+        self.assertIn("新しいユーザネームを登録してください", response.data["error"])
+
+    def test_changeusername_nothing(self):
         data = {"username": ""}
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
+        self.assertIn("ユーザネームを入力してください", response.data["error"])
+
+    def test_changeusername_nothing(self):
+        data = {"username": "  "}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("空白はユーザネームに設定できません", response.data["error"])
+
     def test_changeusername_existinguser(self):
         data = {"username": "anotheruser"}
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
+        self.assertIn("同じユーザネームが既に存在します", response.data["error"])

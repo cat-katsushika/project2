@@ -25,6 +25,7 @@ class SignUpAPIView(generics.CreateAPIView):
 class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
+
 class ChangeUsernameAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChangeUsernameSerializer
@@ -36,11 +37,13 @@ class ChangeUsernameAPIView(APIView):
 
             if not new_username:
                 return Response({"error": "ユーザネームを入力してください"}, status=status.HTTP_400_BAD_REQUEST)
+            elif new_username.isspace() == True:
+                return Response({"error": "空白はユーザネームに設定できません"}, status=status.HTTP_400_BAD_REQUEST)
             elif user.username == new_username:
                 return Response({"error": "新しいユーザネームを登録してください"}, status=status.HTTP_400_BAD_REQUEST)
             elif User.objects.filter(username=new_username).exists():
                 return Response({"error": "同じユーザネームが既に存在します"}, status=status.HTTP_400_BAD_REQUEST)
-           
+
             user.username = new_username
             user.save()
             serializer = self.serializer_class(user)

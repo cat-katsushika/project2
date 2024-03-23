@@ -1,0 +1,39 @@
+name: Django Run Tests
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["dev"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      # 依存関係のインストール
+      run: |
+        pip install -r requirements.txt
+      working-directory: ./server/django
+    - name: Run Tests
+      run: |
+        python3 manage.py test
+      working-directory: ./server/django
+      env:
+        DB_ENGINE: django.db.backends.sqlite3
+        DB_NAME: sqlite3
+        DB_USER: ""
+        DB_PASSWORD: ""
+        DB_HOST: ""
+        DB_PORT: ""
+

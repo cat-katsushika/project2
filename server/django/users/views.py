@@ -42,7 +42,7 @@ class ChangeUsernameAPIView(APIView):
                 return Response({"error": "新しいユーザネームを登録してください"}, status=status.HTTP_400_BAD_REQUEST)
             elif User.objects.filter(username=new_username).exists():
                 return Response({"error": "同じユーザネームが既に存在します"}, status=status.HTTP_400_BAD_REQUEST)
-            user.username = new_username.strip()
+            user.username = new_username
             user.save()
             serializer = self.serializer_class(user)
             return Response(serializer.data, status=status.HTTP_200_OK)

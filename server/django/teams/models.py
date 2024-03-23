@@ -12,7 +12,7 @@ class Team(models.Model):
         editable=False,
     )
 
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="teams")
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="teams", blank=True)
     name = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -13,3 +13,9 @@ class TeamCreateSerializer(ModelSerializer):
     class Meta:
         model = Team
         fields = ["name", "description"]
+
+
+class TeamJoinSerializer(ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["id", "name", "users", "description"]

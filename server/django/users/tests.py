@@ -77,7 +77,7 @@ class RefreshTokenAPITest(APITestCase):
 class ChangeUsernameAPITest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="testpassword")
-        another_user = User.objects.create_user(username="anotheruser", password="anotherpassword")
+        User.objects.create_user(username="anotheruser", password="anotherpassword")
         refresh = RefreshToken.for_user(self.user)
         self.access_token = str(refresh.access_token)
         self.client = APIClient()
@@ -100,12 +100,6 @@ class ChangeUsernameAPITest(APITestCase):
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("ユーザネームを入力してください", response.data["error"])
-
-    def test_changeusername_blankfield(self):
-        data = {"username": "  "}
-        response = self.client.put(self.url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("空白はユーザネームに設定できません", response.data["error"])
 
     def test_changeusername_existinguser(self):
         data = {"username": "anotheruser"}

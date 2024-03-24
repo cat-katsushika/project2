@@ -22,10 +22,11 @@ class TeamJoinAPIView(APIView):
     serializer_class = TeamJoinSerializer
 
     def put(self, request, *args, **kwargs):
-        team = self.queryset.get(pk=kwargs["pk"])
-        if team is None:
+        pk = kwargs["pk"]
+        if not self.queryset.filter(pk=pk).exists():
             return Response({"error": "存在しないチームです"}, status=status.HTTP_400_BAD_REQUEST)
-        elif request.user in team.users.all():
+        team = self.queryset.get(pk=pk)
+        if request.user in team.users.all():
             return Response({"error": "既に参加しています"}, status=status.HTTP_400_BAD_REQUEST)
         team.users.add(request.user)
         team.save()

@@ -1,11 +1,11 @@
-from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
-
 from rest_framework import status
-from teams.models import Team
-from teams.serializers import TeamCreateSerializer, TeamSerializer, TeamJoinSerializer, JoinedTeamSerializer
+from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from teams.models import Team
+from teams.serializers import JoinedTeamSerializer, TeamCreateSerializer, TeamJoinSerializer, TeamSerializer
 
 
 class TeamsAPIView(ListAPIView, PageNumberPagination):
@@ -40,4 +40,4 @@ class JoinedTeamsAPIView(ListAPIView, PageNumberPagination):
 
     def get_queryset(self):
         user = self.request.user
-        return user.joined_teams.all()
+        return user.teams.all()

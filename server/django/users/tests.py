@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.test import TestCase
 from django.urls import reverse
@@ -71,3 +72,37 @@ class RefreshTokenAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("Token is invalid or expired", response.data["detail"])
         self.assertIn("token_not_valid", response.data["code"])
+
+
+class ChangeUsernameAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        User.objects.create_user(username="anotheruser", password="anotherpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.url = reverse("users:change_username")
+
+    def test_changeusername_success(self):
+        data = {"username": "newtestuser"}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_changeusername_sameusername(self):
+        data = {"username": "testuser"}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("新しいユーザネームを登録してください", response.data["error"])
+
+    def test_changeusername_emptyfield(self):
+        data = {"username": ""}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("ユーザネームを入力してください", response.data["error"])
+
+    def test_changeusername_existinguser(self):
+        data = {"username": "anotheruser"}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("同じユーザネームが既に存在します", response.data["error"])

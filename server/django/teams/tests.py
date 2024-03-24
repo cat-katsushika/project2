@@ -1,14 +1,21 @@
 from rest_framework import status
-from rest_framework.test import APITestCase
-
-# from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework.test import APIClient, APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.urls import reverse
 from teams.models import Team
+from users.models import User
+
+# from rest_framework_simplejwt.serializers import TokenObtainSerializer
 
 
 class TeamCreateAPITest(APITestCase):
     def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
         self.teamcreate_url = reverse("teams:team-create")
 
     def test_teamcreate_success(self):

@@ -4,8 +4,8 @@ from rest_framework.pagination import PageNumberPagination
 
 from rest_framework import status
 from teams.models import Team
-from teams.serializers import TeamCreateSerializer, TeamSerializer, TeamJoinSerializer
-from rest_framework.response import Response, JoinedTeamSerializer
+from teams.serializers import TeamCreateSerializer, TeamSerializer, TeamJoinSerializer, JoinedTeamSerializer
+from rest_framework.response import Response
 
 
 class TeamsAPIView(ListAPIView, PageNumberPagination):

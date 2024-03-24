@@ -6,13 +6,19 @@ from teams.models import Team
 class TeamSerializer(ModelSerializer):
     class Meta:
         model = Team
-        fields = ["id", "name", "description"]  # JSONにするフィールドを指定
+        fields = ["id", "name", "users", "description"]  # JSONにするフィールドを指定
 
 
 class TeamCreateSerializer(ModelSerializer):
     class Meta:
         model = Team
         fields = ["name", "description"]
+
+
+class TeamJoinSerializer(ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["id", "name", "users", "description"]
 
 
 class JoinedTeamSerializer(ModelSerializer):

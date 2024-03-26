@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
+import uuid
 
 from django.urls import reverse
 from teams.models import Team
@@ -52,3 +53,32 @@ class TeamCreateAPITest(APITestCase):
         response = self.client.post(self.teamcreate_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {"name": ["team with this name already exists."]})
+
+
+class TeamJoinAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.team = Team.objects.create(name="testteam", description="testteam description")
+        self.teamjoin_url = reverse("teams:team-join", kwargs={"pk": self.team.id})
+
+    def test_teamjoin_success(self):
+        response = self.client.put(self.teamjoin_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["users"], [self.user.id])
+
+    def test_teamjoin_with_invalid_team_id(self):
+        invalid_uuid = uuid.uuid4()
+        invalid_teamjoin_url = reverse("teams:team-join", kwargs={"pk": invalid_uuid})
+        response = self.client.put(invalid_teamjoin_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {"error": "存在しないチームです"})
+
+    def test_teamjoin_with_already_joined_team(self):
+        self.team.users.add(self.user)
+        response = self.client.put(self.teamjoin_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {"error": "既に参加しています"})

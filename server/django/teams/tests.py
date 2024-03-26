@@ -67,8 +67,7 @@ class TeamJoinAPITest(APITestCase):
         self.teamjoin_url = reverse("teams:team-join", kwargs={"pk": self.team.id})
 
     def test_teamjoin_success(self):
-        data = {"team_id": self.team.id}
-        response = self.client.put(self.teamjoin_url, data, format="json")
+        response = self.client.put(self.teamjoin_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["users"], [self.user.id])
 

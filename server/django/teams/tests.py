@@ -1,7 +1,8 @@
+import uuid
+
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
-import uuid
 
 from django.urls import reverse
 from teams.models import Team
@@ -82,3 +83,19 @@ class TeamJoinAPITest(APITestCase):
         response = self.client.put(self.teamjoin_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {"error": "既に参加しています"})
+
+
+class JoinedTeamsAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.team = Team.objects.create(name="testteam", description="testteam description")
+        self.team.users.add(self.user)
+        self.joinedteams_url = reverse("teams:joined-team-list")
+
+    def test_joinedteams_success(self):
+        response = self.client.get(self.joinedteams_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

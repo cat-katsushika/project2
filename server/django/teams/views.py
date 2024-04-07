@@ -36,7 +36,6 @@ class TeamJoinAPIView(APIView):
 
 class JoinedTeamsAPIView(ListAPIView, PageNumberPagination):
     serializer_class = JoinedTeamSerializer
-    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         user = self.request.user

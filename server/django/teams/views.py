@@ -16,6 +16,9 @@ class TeamsAPIView(ListAPIView, PageNumberPagination):
 class TeamCreateAPIView(CreateAPIView):
     serializer_class = TeamCreateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(users=[self.request.user])
+
 
 class TeamJoinAPIView(APIView):
     queryset = Team.objects.all()

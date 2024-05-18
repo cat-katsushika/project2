@@ -28,6 +28,8 @@ class TeamCreateAPITest(APITestCase):
         response = self.client.post(self.teamcreate_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, data)
+        team = Team.objects.get(name="testteam")
+        self.assertEqual(team.users.get(username="testuser"), self.user)
 
     def test_teamcreate_with_empty_name(self):
         data = {

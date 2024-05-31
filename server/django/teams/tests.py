@@ -103,7 +103,7 @@ class TeamJoinAPITest(APITestCase):
         self.access_token = str(refresh.access_token)
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
-        self.team = Team.objects.create(name="testteam", description="testteam description")
+        self.team = Team.objects.create(name="test team", description="test team description")
         self.team_join_url = reverse("teams:team-join", kwargs={"pk": self.team.id})
 
     def test_team_join_success(self):

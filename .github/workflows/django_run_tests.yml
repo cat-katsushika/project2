@@ -7,13 +7,6 @@ on:
 jobs:
   django_run_tests:
     runs-on: ubuntu-latest
-    env:
-      DB_ENGINE: django.db.backends.sqlite3
-      DB_NAME: sqlite3
-      DB_USER: ""
-      DB_PASSWORD: ""
-      DB_HOST: ""
-      DB_PORT: ""
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -26,13 +19,16 @@ jobs:
       run: |
         pip install -r requirements.txt
       working-directory: ./server/django
-    - name: Apply Migrations
-      run: |
-        python3 manage.py migrate
-      working-directory: ./server/django
     - name: Run Tests
       run: |
         python3 manage.py test --verbosity=2
       working-directory: ./server/django
+      env:
+        DB_ENGINE: django.db.backends.sqlite3
+        DB_NAME: sqlite3
+        DB_USER: ""
+        DB_PASSWORD: ""
+        DB_HOST: ""
+        DB_PORT: ""
 
 

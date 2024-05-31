@@ -19,6 +19,10 @@ jobs:
       run: |
         pip install -r requirements.txt
       working-directory: ./server/django
+    - name: Apply Migrations
+      run: |
+        python3 manage.py migrate
+      working-directory: ./server/django
     - name: Run Tests
       run: |
         python3 manage.py test --verbosity=2

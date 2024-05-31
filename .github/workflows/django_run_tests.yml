@@ -21,7 +21,7 @@ jobs:
       working-directory: ./server/django
     - name: Run Tests
       run: |
-        python3 manage.py test
+        python3 manage.py test --verbosity=2
       working-directory: ./server/django
       env:
         DB_ENGINE: django.db.backends.sqlite3

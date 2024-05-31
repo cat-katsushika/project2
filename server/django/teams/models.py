@@ -32,5 +32,6 @@ class Task(models.Model):
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tasks")
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="tasks")
-
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.IN_PROGRESS)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

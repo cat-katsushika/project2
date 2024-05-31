@@ -56,6 +56,46 @@ class TeamCreateAPITest(APITestCase):
         self.assertEqual(response.data, {"name": ["team with this name already exists."]})
 
 
+class TeamDetailAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.team = Team.objects.create(name="test team", description="test team description")
+        self.team.users.add(self.user)
+        self.team_detail_url = reverse("teams:team-detail", kwargs={"team_id": self.team.id})
+
+    def test_team_detail_success(self):
+        response = self.client.get(self.team_detail_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["team"]["name"], self.team.name)
+        self.assertEqual(response.data["team"]["description"], self.team.description)
+        self.assertEqual(response.data["task"]["user"], str(self.user.id))
+        self.assertEqual(response.data["continuation_count"], 0)
+        self.assertEqual(response.data["users"], [{"id": str(self.user.id), "username": self.user.username}])
+
+    def test_team_detail_with_invalid_team_id(self):
+        invalid_uuid = uuid.uuid4()
+        invalid_team_detail_url = reverse("teams:team-detail", kwargs={"team_id": invalid_uuid})
+        response = self.client.get(invalid_team_detail_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {"error": "存在しないチームです"})
+
+    def test_team_detail_with_no_task(self):
+        self.team.tasks.all().delete()
+        response = self.client.get(self.team_detail_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data["task"], None)
+
+    def test_team_detail_with_completed_task(self):
+        self.team.tasks.create(user=self.user, status="completed")
+        response = self.client.get(self.team_detail_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["continuation_count"], 1)
+
+
 class TeamJoinAPITest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="testpassword")

@@ -22,6 +22,7 @@ jobs:
     - name: check test files
       run: |
         cat ./teams/tests.py
+      working-directory: ./server/django
     - name: Run Tests
       run: |
         python3 manage.py test --verbosity=2

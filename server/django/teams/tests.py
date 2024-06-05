@@ -1,11 +1,13 @@
 import uuid
+from datetime import datetime, timedelta
 
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.urls import reverse
-from teams.models import Team
+from django.utils import timezone
+from teams.models import Task, Team
 from users.models import User
 
 # from rest_framework_simplejwt.serializers import TokenObtainSerializer
@@ -96,6 +98,52 @@ class TeamDetailAPITest(APITestCase):
         response = self.client.get(self.team_detail_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["continuation_count"], 1)
+
+
+class TaskDoneAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.team = Team.objects.create(name="test team", description="test team description")
+        self.team.users.add(self.user)
+        self.team_done_url = reverse("teams:team-done", kwargs={"team_id": self.team.id})
+
+    def test_task_done_success(self):
+        self.team.tasks.create(user=self.user, status=Task.Status.IN_PROGRESS)
+        response = self.client.post(self.team_done_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "タスクを完了しました"})
+        self.assertEqual(self.team.tasks.filter(status=Task.Status.COMPLETED).count(), 1)
+        self.assertEqual(self.team.tasks.filter(status=Task.Status.IN_PROGRESS).count(), 1)
+
+    def test_task_done_with_no_task(self):
+        response = self.client.post(self.team_done_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {"error": "タスクが存在しません"})
+        self.assertEqual(self.team.tasks.filter(status=Task.Status.COMPLETED).count(), 0)
+
+    def test_task_done_with_another_user_task(self):
+        another_user = User.objects.create_user(username="anotheruser", password="anotherpassword")
+        self.team.tasks.create(user=another_user, status=Task.Status.IN_PROGRESS)
+        response = self.client.post(self.team_done_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {"error": "他のユーザーのタスクは完了できません"})
+        self.assertEqual(self.team.tasks.filter(status=Task.Status.COMPLETED).count(), 0)
+
+    def test_task_done_with_task_done_after_24_hours(self):
+        native_past_date = datetime.now() - timedelta(days=2)
+        aware_past_date = timezone.make_aware(native_past_date)
+        task = Task.objects.create(
+            user=self.user, team=self.team, status=Task.Status.IN_PROGRESS, created_at=aware_past_date
+        )
+        task.save()
+        response = self.client.post(self.team_done_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "チームは解散しました"})
+        self.assertEqual(Team.objects.filter(id=self.team.id).count(), 0)
 
 
 class TeamJoinAPITest(APITestCase):

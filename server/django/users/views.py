@@ -1,8 +1,4 @@
-# from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, status
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

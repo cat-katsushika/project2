@@ -1,25 +1,19 @@
 name: Django Run Tests
 
 on:
-  push:
-    branches: ["dev"]
   pull_request:
     branches: ["dev"]
 
 jobs:
-  build:
+  django_run_tests:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: ["3.11"]
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.11'
     - name: Install dependencies
       # 依存関係のインストール
       run: |
@@ -27,7 +21,7 @@ jobs:
       working-directory: ./server/django
     - name: Run Tests
       run: |
-        python3 manage.py test
+        python3 manage.py test --verbosity=2
       working-directory: ./server/django
       env:
         DB_ENGINE: django.db.backends.sqlite3
@@ -36,4 +30,5 @@ jobs:
         DB_PASSWORD: ""
         DB_HOST: ""
         DB_PORT: ""
+
 

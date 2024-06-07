@@ -46,7 +46,7 @@ class TeamDetailAPIView(APIView):
             },
             "task": {
                 "id": str(task.id),
-                "user": str(task.user.id),
+                "user": str(task.user.username),
                 "created_at": str(task.created_at),
             },
             "continuation_count": continuation_count,

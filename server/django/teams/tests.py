@@ -76,7 +76,7 @@ class TeamDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["team"]["name"], self.team.name)
         self.assertEqual(response.data["team"]["description"], self.team.description)
-        self.assertEqual(response.data["task"]["user"], str(self.user.id))
+        self.assertEqual(response.data["task"]["user"], str(self.user.username))
         self.assertEqual(response.data["continuation_count"], 0)
         self.assertEqual(response.data["users"], [{"id": str(self.user.id), "username": self.user.username}])
 

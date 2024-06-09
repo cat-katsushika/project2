@@ -62,10 +62,4 @@ class DeleteAccountsAPIView(APIView):
         user.delete()
         return Response(status=status.HTTP_200_OK)
 
-
-
-        
-        
-        
-        
         

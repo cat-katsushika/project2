@@ -61,6 +61,8 @@ class DeleteAccountsAPIView(APIView):
                 Task.objects.create(user=next_user, team=team, status=Task.Status.IN_PROGRESS)
         user.delete()
         return Response(status=status.HTTP_200_OK)
+    
+
         
         
         

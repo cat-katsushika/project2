@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .models import User
-
+from teams.models import Team,Task
 
 class SignUpAPITest(TestCase):
     def setUp(self):
@@ -106,3 +106,43 @@ class ChangeUsernameAPITest(APITestCase):
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("同じユーザネームが既に存在します", response.data["error"])
+        
+class DeleteAccountsAPITest(APITestCase):
+    def setUp(self):
+        #ユーザ－関連
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.user2 = User.objects.create_user(username="user2", password="anotherpassword")
+        self.user3 = User.objects.create_user(username="user3", password="anotherpassword")
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token)
+        self.url = reverse("users:delete_accounts")
+        #チーム関連
+        self.team1 = Team.objects.create(name="test_team", description="test _team_description")
+        self.team2 = Team.objects.create(name="test_team2", description="test_team2_description")
+        self.team1.users.add(self.user)
+        self.team2.users.add(self.user)
+        self.team2.users.add(self.user2)
+        self.team2.users.add(self.user3)
+        #タスク関連
+        Task.objects.create(user=self.user, team=self.team2, status=Task.Status.IN_PROGRESS)
+    def test_delete_accounts_success(self):
+        self.assertEqual(User.objects.all().count(),3)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #総人数が1人減って2人になっていることを確認
+        self.assertEqual(User.objects.all().count(),2)
+    def test_delete_teams_success(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #チーム1は削除され，チーム2は残ることを確認
+        self.assertFalse(Team.objects.filter(id=self.team1.id).exists())
+        self.assertTrue(Team.objects.filter(id=self.team2.id).exists())
+    def test_change_tasks_success(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #self.userの爆弾(タスク)をuser2またはuser3に渡す
+        self.assertFalse(Task.objects.filter(user=self.user, team=self.team2, status=Task.Status.IN_PROGRESS).exists())
+        self.assertTrue(Task.objects.filter(user__in=[self.user2, self.user3], team=self.team2, status=Task.Status.IN_PROGRESS).exists())
+        

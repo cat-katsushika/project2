@@ -2,7 +2,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from django.urls import path
 
-from .views import ChangeUsernameAPIView, SignUpAPIView
+from .views import ChangeUsernameAPIView, SignUpAPIView,DeleteAccountsAPIView
 
 app_name = "users"
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path("v1/users/login/", TokenObtainPairView.as_view(), name="login"),
     path("v1/users/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("v1/users/change_name/", ChangeUsernameAPIView.as_view(), name="change_username"),
+    path("v1/users/delete_accounts/", DeleteAccountsAPIView.as_view(), name="delete_accounts"),
 ]
